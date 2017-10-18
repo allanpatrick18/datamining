@@ -25,35 +25,21 @@ import numpy as np
 import pandas as pd
 import matplotlib
 
-
+from matplotlib.mlab import csv2rec
 matplotlib.style.use('ggplot')       # Use ggplot style plots*
+from matplotlib.cbook import get_sample_data
 
-
-
+color_sequence = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
+                  '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+                  '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
+                  '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
 directoryPath='/home/allan/PycharmProjects/datamining/dados_consumo_todos/total/'
 
 def main():
 
-    # demo()
-    df = pd.read_csv('/home/allan/PycharmProjects/datamining/dados_consumo_todos/total.csv', encoding="ISO-8859-1", header=None)
-    # df = pd.DataFrame(df2,  columns=list('ABCD'))
-    # print(df)
 
-
-    df1 = df.ix[:,5:6]
-    df.plot(x='MWh', y='ano')
-    df1 = df1.values
-    df = df.cumsum()
-    plt.figure();
-    df.plot();
-
-    # list(df1)
-    # print(df1)
-    # df1 = df.ix[:,6]
-    # df1 = df1.values
-    # list(df1)
-    # series = df
-    # series.hist()
+    # df = pd.read_csv('/home/allan/PycharmProjects/datamining/dados_consumo_todos/total/fee-1996-mun-consumo-total-100849.csv', encoding="ISO-8859-1", header=None)
+    caso()
     i =0
     os.chdir(directoryPath)
     files=glob.glob("*.csv")
@@ -65,8 +51,9 @@ def main():
             x.loc[:, 'ano'] = getYear(file)
             if(i!=0):
                 result = x.append(prev, ignore_index=True)
-
-            prev = x
+                prev =result
+            else:
+                prev = x
             i += 1
 
     result.drop(result.index[0])
@@ -101,6 +88,44 @@ def demo():
                err_style="boot_traces",
                unit='sub',
                n_boot=50)
+
+def caso():
+    with open('/home/allan/PycharmProjects/datamining/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
+        gender_degree_data = csv2rec(fname)
+    anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
+
+    anossort = anos.sort_values(by='ano', ascending=True)
+    anostype = anossort[['mwh', 'ano']].astype(int)
+    anostype.plot(x='ano', y='mwh',style='k.')
+
+    american = anos['municipio'] == "Agudo"
+    print(anos[american])
+    select = anos[american]
+
+    nomes =[]
+    for index, row in anos.iterrows():
+        nomes.append(row["municipio"])
+        if(index==10):
+            break
+
+    for rank , colunm in enumerate(nomes):
+        selecionados = anos['municipio'] == colunm
+        umframe = anos[selecionados]
+        umframesort = umframe.sort_values(by='ano', ascending=True)
+        umframesort = umframesort[['mwh', 'ano']].astype(float)
+        umframesort.plot(x='ano', y='mwh', style='.-')
+
+    plt.show()
+    anos[american]
+    select3=select.sort_values(by='ano', ascending=True)
+    select3  = select3[['mwh','ano']].astype(float)
+
+    print(select3)
+    # yaxis = select[['mwh']]
+    # yaxis=yaxis.values
+    select3.plot(x='ano', y ='mwh' , style='.-')
+
+
 
 
 if __name__ == "__main__":
