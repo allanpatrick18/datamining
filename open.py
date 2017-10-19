@@ -94,9 +94,23 @@ def caso():
         gender_degree_data = csv2rec(fname)
     anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
 
+    for index, row in anos.iterrows():
+        if(len(str(row["mwh"]))>6):
+           cells = str(row["mwh"])
+           for rank, c in cells:
+                if(rank!=6):
+                  cells[rank] = '.'
+                cells[rank]=c
+
+
+
+
+
     anossort = anos.sort_values(by='ano', ascending=True)
     anostype = anossort[['mwh', 'ano']].astype(int)
     anostype.plot(x='ano', y='mwh',style='k.')
+
+
 
     american = anos['municipio'] == "Agudo"
     print(anos[american])
