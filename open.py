@@ -95,26 +95,27 @@ def caso():
     anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
 
     for index, row in anos.iterrows():
-        if(len(str(row["mwh"]))>6):
-           cells = str(row["mwh"])
-           for rank, c in cells:
-                if(rank!=6):
-                  cells[rank] = '.'
-                cells[rank]=c
+        # if(len(str(row["mwh"]))>6):
+           # cells = str(row["mwh"])
+           # for rank, c in cells:
+        row["mwh"] = int(row["mwh"])
+                # if(rank!=6):
+                #   cells[rank] = '.'
+                # cells[rank]=c
 
 
 
-
-
-    anossort = anos.sort_values(by='ano', ascending=True)
-    anostype = anossort[['mwh', 'ano']].astype(int)
-    anostype.plot(x='ano', y='mwh',style='k.')
-
-
-
-    american = anos['municipio'] == "Agudo"
-    print(anos[american])
-    select = anos[american]
+    # grouped = anos.groupby('municipio')
+    # print(grouped)
+    # anossort = anos.sort_values(by='ano', ascending=True)
+    # anostype = anossort[['mwh', 'ano']].astype(float)
+    # ax =anostype.plot(x='ano', y='mwh',style='k.')
+    # ax.set_xlim(1990,2016)
+    #
+    #
+    # american = anos['municipio'] == "Agudo"
+    # print(anos[american])
+    # select = anos[american]
 
     nomes =[]
     for index, row in anos.iterrows():
@@ -122,22 +123,33 @@ def caso():
         if(index==10):
             break
 
+    colormap = plt.cm.gist_ncar  # nipy_spectral, Set1,Paired
+    colors = [colormap(i) for i in np.linspace(0, 1, 400)]
+    labels = []
     for rank , colunm in enumerate(nomes):
         selecionados = anos['municipio'] == colunm
         umframe = anos[selecionados]
         umframesort = umframe.sort_values(by='ano', ascending=True)
         umframesort = umframesort[['mwh', 'ano']].astype(float)
-        umframesort.plot(x='ano', y='mwh', style='.-')
+        plt.plot(umframesort['ano'],umframesort['mwh'],'k')
+        labels.append(colunm)
+        # ax = umframesort.plot(x='ano', y='mwh', style='.-')
+
+    plt.legend(labels, ncol=4, loc='upper center',
+               bbox_to_anchor=[0.5, 1.1],
+               columnspacing=1.0, labelspacing=0.0,
+               handletextpad=0.0, handlelength=1.5,
+               fancybox=True, shadow=True)
 
     plt.show()
-    anos[american]
-    select3=select.sort_values(by='ano', ascending=True)
-    select3  = select3[['mwh','ano']].astype(float)
+    # anos[american]
+    # select3=select.sort_values(by='ano', ascending=True)
+    # select3  = select3[['mwh','ano']].astype(float)
 
-    print(select3)
-    # yaxis = select[['mwh']]
-    # yaxis=yaxis.values
-    select3.plot(x='ano', y ='mwh' , style='.-')
+    # print(select3)
+    # # yaxis = select[['mwh']]
+    # # yaxis=yaxis.values
+    # select3.plot(x='ano', y ='mwh' , style='.-')
 
 
 
