@@ -15,7 +15,7 @@ import glob
 import os
 import re
 
-import sns as sns
+
 from pandas import Series
 from matplotlib import pyplot
 
@@ -29,17 +29,15 @@ from matplotlib.mlab import csv2rec
 matplotlib.style.use('ggplot')       # Use ggplot style plots*
 from matplotlib.cbook import get_sample_data
 
-color_sequence = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
-                  '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
-                  '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
-                  '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
 directoryPath='/home/allan/PycharmProjects/datamining/dados_consumo_todos/total/'
 
 def main():
 
 
     # df = pd.read_csv('/home/allan/PycharmProjects/datamining/dados_consumo_todos/total/fee-1996-mun-consumo-total-100849.csv', encoding="ISO-8859-1", header=None)
-    caso()
+    graficoScatter()
+    graficoLine()
+
     i =0
     os.chdir(directoryPath)
     files=glob.glob("*.csv")
@@ -89,49 +87,29 @@ def demo():
                unit='sub',
                n_boot=50)
 
-def caso():
-    with open('/home/allan/PycharmProjects/datamining/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
+def graficoLine():
+    with open('/home/lucas/PycharmProjects/openCsv/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
         gender_degree_data = csv2rec(fname)
     anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
-
-    for index, row in anos.iterrows():
-        # if(len(str(row["mwh"]))>6):
-           # cells = str(row["mwh"])
-           # for rank, c in cells:
-        row["mwh"] = int(row["mwh"])
-                # if(rank!=6):
-                #   cells[rank] = '.'
-                # cells[rank]=c
-
-
-
-    # grouped = anos.groupby('municipio')
-    # print(grouped)
-    # anossort = anos.sort_values(by='ano', ascending=True)
-    # anostype = anossort[['mwh', 'ano']].astype(float)
-    # ax =anostype.plot(x='ano', y='mwh',style='k.')
-    # ax.set_xlim(1990,2016)
-    #
-    #
-    # american = anos['municipio'] == "Agudo"
-    # print(anos[american])
-    # select = anos[american]
 
     nomes =[]
     for index, row in anos.iterrows():
         nomes.append(row["municipio"])
-        if(index==10):
+        if(index==460):
             break
 
     colormap = plt.cm.gist_ncar  # nipy_spectral, Set1,Paired
-    colors = [colormap(i) for i in np.linspace(0, 1, 400)]
+    colors = [colormap(i) for i in np.linspace(0, 1, len(nomes))]
     labels = []
+
+    plt.xlim([1990, 2015])
+    # plt.ylim([0, 10])
     for rank , colunm in enumerate(nomes):
         selecionados = anos['municipio'] == colunm
         umframe = anos[selecionados]
         umframesort = umframe.sort_values(by='ano', ascending=True)
-        umframesort = umframesort[['mwh', 'ano']].astype(float)
-        plt.plot(umframesort['ano'],umframesort['mwh'],'k')
+        umframesort = umframesort[['mwh', 'ano']].astype(int)
+        plt.plot(umframesort['ano'],umframesort['mwh'],'k', color = colors[rank])
         labels.append(colunm)
         # ax = umframesort.plot(x='ano', y='mwh', style='.-')
 
@@ -142,6 +120,79 @@ def caso():
                fancybox=True, shadow=True)
 
     plt.show()
+
+
+
+def graficoScatter():
+    with open('/home/lucas/PycharmProjects/openCsv/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
+        gender_degree_data = csv2rec(fname)
+    anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
+
+    for index, row in anos.iterrows():
+        row["mwh"] = int(row["mwh"])
+
+    anossort = anos.sort_values(by='ano', ascending=True)
+    anostype = anossort[['mwh', 'ano']].astype(float)
+    ax =anostype.plot(x='ano', y='mwh',style='k.')
+    ax.set_xlim(1990,2016)
+
+    plt.show()
+
+def raficoTes():
+
+    with open('/home/lucas/PycharmProjects/openCsv/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
+     gender_degree_data = csv2rec(fname)
+    anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
+
+    for index, row in anos.iterrows():
+        # if(len(str(row["mwh"]))>6):
+        # cells = str(row["mwh"])
+        # for rank, c in cells:
+        row["mwh"] = int(row["mwh"])
+        # if(rank!=6):
+        #   cells[rank] = '.'
+        # cells[rank]=c
+
+    grouped = anos.groupby('municipio')
+    print(grouped)
+    anossort = anos.sort_values(by='ano', ascending=True)
+    anostype = anossort[['mwh', 'ano']].astype(float)
+    ax = anostype.plot(x='ano', y='mwh', style='k.')
+    ax.set_xlim(1990, 2016)
+
+    american = anos['municipio'] == "Agudo"
+    print(anos[american])
+    select = anos[american]
+
+    nomes = []
+    for index, row in anos.iterrows():
+        nomes.append(row["municipio"])
+        if (index == 400):
+            break
+
+    colormap = plt.cm.gist_ncar  # nipy_spectral, Set1,Paired
+    colors = [colormap(i) for i in np.linspace(0, 1, len(nomes))]
+    labels = []
+
+    plt.xlim([1990, 2015])
+    plt.ylim([0, 10])
+    for rank, colunm in enumerate(nomes):
+        selecionados = anos['municipio'] == colunm
+        umframe = anos[selecionados]
+        umframesort = umframe.sort_values(by='ano', ascending=True)
+        umframesort = umframesort[['mwh', 'ano']].astype(int)
+        plt.plot(umframesort['ano'], umframesort['mwh'], 'k', color=colors[rank])
+        labels.append(colunm)
+        # ax = umframesort.plot(x='ano', y='mwh', style='.-')
+
+    plt.legend(labels, ncol=4, loc='upper center',
+               bbox_to_anchor=[0.5, 1.1],
+               columnspacing=1.0, labelspacing=0.0,
+               handletextpad=0.0, handlelength=1.5,
+               fancybox=True, shadow=True)
+
+    plt.show()
+
     # anos[american]
     # select3=select.sort_values(by='ano', ascending=True)
     # select3  = select3[['mwh','ano']].astype(float)
@@ -150,7 +201,6 @@ def caso():
     # # yaxis = select[['mwh']]
     # # yaxis=yaxis.values
     # select3.plot(x='ano', y ='mwh' , style='.-')
-
 
 
 
