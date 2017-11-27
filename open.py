@@ -7,6 +7,7 @@ import plotly.plotly as py
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn import preprocessing
 import seaborn
 import seaborn as sns
 
@@ -32,11 +33,12 @@ from matplotlib.cbook import get_sample_data
 directoryPath='/home/allan/PycharmProjects/datamining/dados_consumo_todos/total/'
 
 def main():
-
-
     # df = pd.read_csv('/home/allan/PycharmProjects/datamining/dados_consumo_todos/total/fee-1996-mun-consumo-total-100849.csv', encoding="ISO-8859-1", header=None)
+    correlation()
+    normalizar()
     graficoScatter()
     graficoLine()
+
 
     i =0
     os.chdir(directoryPath)
@@ -57,6 +59,32 @@ def main():
     result.drop(result.index[0])
     print(result)
     result.to_csv('total', sep=',', encoding='ISO-8859-1')
+
+def correlation():
+    with open('/home/lucas/PycharmProjects/openCsv/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
+        gender_degree_data = csv2rec(fname)
+    anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
+
+
+    anos = anos[['municipio','mwh','ano']]
+    cols_to_norm = ['mwh']
+    anos[cols_to_norm] = anos[cols_to_norm].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
+    # pivoted = anos.pivot('ano', 'municipio')
+    pivoted = anos.pivot(index='municipio', columns='ano', values='mwh')
+    # Compute the correlation matrix
+    corr = pivoted.corr()
+    ax = sns.heatmap(corr)
+    # print(corr)
+    # anossort = anos.sort_values(by='ano', ascending=True)
+    # anos['mwh'] = anos[['mwh']].astype(float)
+    pivoted = pivoted.fillna(0)
+    # train_float = pivoted.select_dtypes(include=['float64'])
+    # colormap = plt.cm.magma
+    # plt.figure(figsize=(16, 12))
+    # plt.title('Pearson correlation of continuous features', y=1.05, size=15)
+        ax = sns.heatmap(pivoted)
+    # sns.heatmap(train_float.corr(), linewidths=0.1, vmax=1.0, square=True,
+    #             cmap=colormap, linecolor='white', annot=True)
 
 
 def getYear(file):
@@ -138,10 +166,49 @@ def graficoScatter():
 
     plt.show()
 
-def raficoTes():
+
+def normalizar():
+    with open('/home/lucas/PycharmProjects/openCsv/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
+        gender_degree_data = csv2rec(fname)
+    anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
+
+    # for index, row in anos.iterrows():
+    #     row["mwh"] = int(row["mwh"])
+
+    anossort = anos.sort_values(by='ano', ascending=True)
+    anossort['mwh'] = anossort[['mwh']].astype(float)
+    #This will apply it to only the columns you desire
+    cols_to_norm = ['mwh']
+    anossort[cols_to_norm] = anossort[cols_to_norm].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
+    ax = anossort.plot(x='ano', y='mwh', style='k.')
+    ax.set_xlim(1990, 2016)
+    nomes = []
+    for index, row in anos.iterrows():
+        nomes.append(row["municipio"])
+        if (index == 460):
+            break
+
+    colormap = plt.cm.gist_ncar  # nipy_spectral, Set1,Paired
+    colors = [colormap(i) for i in np.linspace(0, 1, len(nomes))]
+    labels = []
+
+    plt.xlim([1990, 2016])
+    for rank, colunm in enumerate(nomes):
+        selecionados = anossort['municipio'] == colunm
+        umframe = anossort[selecionados]
+        umframesort = umframe.sort_values(by='ano', ascending=True)
+        # umframesort = umframesort[['mwh', 'ano']].astype(float)
+        plt.plot(umframesort['ano'], umframesort['mwh'], 'k', color=colors[rank])
+        labels.append(colunm)
+
+    plt.show()
+
+
+
+def graficoTes():
 
     with open('/home/lucas/PycharmProjects/openCsv/dados_consumo_todos/total.csv', encoding="ISO-8859-1") as fname:
-     gender_degree_data = csv2rec(fname)
+        gender_degree_data = csv2rec(fname)
     anos = pd.DataFrame(gender_degree_data, columns=['municipio', 'ibge', 'latitude', 'longitude', 'mwh', 'ano'])
 
     for index, row in anos.iterrows():
